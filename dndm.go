@@ -36,7 +36,7 @@ func MakeMapObj(x string) *mapobj {
 
 func main(){
     maintime := MakeMapObj("sub")
-    main.su
+    maintime.sub["players"] = MakeMapObj("sub")
 
     pc := readline.NewPrefixCompleter(readline.PcItem("hehe"),readline.PcItem("hoho",readline.PcItem("haha")),readline.PcItem("hehehe"))
 
@@ -50,6 +50,6 @@ func main(){
     main := MakeMapObj("sub")
     main.sub["hehe"] = MakeMapObj("sub")
     main.sub["hehe"].sub["test"] = MakeMapObj("data")
-    #fmt.Println(main.sub["hehe"].val)
+    //fmt.Println(main.sub["hehe"].val)
     fmt.Println(SToMap("hehe/test/",*main).val)
 }
