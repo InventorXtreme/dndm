@@ -50,20 +50,35 @@ func SetValToPath(s string, val string, m mapobj) *mapobj {
     } 
 }
 
+func PathFormat(toformat string) string {
+	if(toformat[len(toformat)-1:] != "/") {
+		return ( toformat + "/")
+	} else {
+		return toformat
+	}
+}
 
 func main(){
     maintime := MakeMapObj("sub")
     maintime.sub["players"] = MakeMapObj("sub")
     SetValToPath("home/","test",*maintime)
 	fmt.Println(SToMap("home/", *maintime).val)
-    pc := readline.NewPrefixCompleter(readline.PcItem("hehe"),readline.PcItem("hoho",readline.PcItem("haha")),readline.PcItem("hehehe"))
+    pc := readline.NewPrefixCompleter(readline.PcItem("set"),readline.PcItem("get"),readline.PcItem("quit"))
 
-    l, _ := readline.NewEx(&readline.Config{Prompt: "aa ", AutoComplete: pc})
-    
+    l, _ := readline.NewEx(&readline.Config{Prompt: "? ", AutoComplete: pc})
+   
+	for true {
+		command, _ := l.Readline()
+		if command == "quit" {
+			break
+		}
+		
+
+	} 
     readline.SetAutoComplete(pc)
-    b, _ := l.Readline()
+    //b, _ := l.Readline()
     
-    fmt.Println(b)
+    //fmt.Println(b)
 
     main := MakeMapObj("sub")
     main.sub["hehe"] = MakeMapObj("sub")
