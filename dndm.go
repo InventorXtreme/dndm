@@ -31,13 +31,31 @@ func MakeMapObj(x string) *mapobj {
 }
 
 
-
+func SetValToPath(s string, val string, m mapobj) *mapobj {
+	r := regexp.MustCompile("^[a-zA-Z0-9]*/")
+    a := r.FindString(s)
+    path := strings.TrimSuffix(a, "/")
+    newa := strings.TrimPrefix(s,a)
+    //fmt.Println(path)
+    if(len(newa) > 0){
+        _, ok := m.sub[path]
+		if (!ok) {
+			m.sub[path] = MakeMapObj("sub")
+		}
+        return SetValToPath(newa, val, *m.sub[path])
+    } else {
+		m.sub[path] = MakeMapObj(val)
+		//m.val = val
+        return &m
+    } 
+}
 
 
 func main(){
     maintime := MakeMapObj("sub")
     maintime.sub["players"] = MakeMapObj("sub")
-
+    SetValToPath("home/","test",*maintime)
+	fmt.Println(SToMap("home/", *maintime).val)
     pc := readline.NewPrefixCompleter(readline.PcItem("hehe"),readline.PcItem("hoho",readline.PcItem("haha")),readline.PcItem("hehehe"))
 
     l, _ := readline.NewEx(&readline.Config{Prompt: "aa ", AutoComplete: pc})
@@ -51,5 +69,5 @@ func main(){
     main.sub["hehe"] = MakeMapObj("sub")
     main.sub["hehe"].sub["test"] = MakeMapObj("data")
     //fmt.Println(main.sub["hehe"].val)
-    fmt.Println(SToMap("hehe/test/",*main).val)
+    fmt.Println(SToMap("hehe/",*main).val)
 }
