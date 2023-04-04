@@ -10,6 +10,10 @@ type mapobj struct {
     sub map[string]*mapobj
 }
 
+type completeholder struct {
+	m *mapobj 
+}
+
 func SToMap(s string,m mapobj) *mapobj {
     r := regexp.MustCompile("^[a-zA-Z0-9]*/")
     a := r.FindString(s)
@@ -59,11 +63,30 @@ func SetValToPath(s string, val string, m mapobj) *mapobj {
 }
 
 func PathFormat(toformat string) string {
-	if(toformat[len(toformat)-1:] != "/") {
-		return ( toformat + "/")
+	e := strings.TrimSuffix(toformat, " ")
+	if(e[len(e)-1:] != "/") {
+		return ( e + "/")
 	} else {
-		return toformat
+		return e
 	}
+}
+
+func ListAllPaths(prefix string,m *mapobj) []string {
+	var l []string
+	for k, v := range m.sub {
+		l = append(l,(prefix + k + "/"))
+		if len(v.sub) > 0 {
+			e := ListAllPaths((prefix + k + "/"),v)
+			for _,v := range e {
+				l = append(l,v)
+			}
+		}
+	}
+	return l
+}
+
+func (e completeholder ) compthing(a string) []string {
+	return ListAllPaths("",e.m)
 }
 
 func main(){
@@ -71,27 +94,29 @@ func main(){
     maintime.sub["players"] = MakeMapObj("sub")
     SetValToPath("home/","test",*maintime)
 	fmt.Println(SToMap("home/", *maintime).val)
-    pc := readline.NewPrefixCompleter(readline.PcItem("set"),readline.PcItem("get"),readline.PcItem("quit"))
-
+    a := completeholder{maintime}
+    pc := readline.NewPrefixCompleter(readline.PcItem("set",readline.PcItemDynamic(a.compthing)),readline.PcItem("get",readline.PcItemDynamic(a.compthing)),readline.PcItem("quit"))
+	fmt.Println(ListAllPaths("",maintime))
     l, _ := readline.NewEx(&readline.Config{Prompt: "? ", AutoComplete: pc})
    
 	for true {
 		command, _ := l.Readline()
-		if command == "quit" || command == "quit " {
+		smand := strings.Split(command, " ")
+		if smand[0] == "quit" || smand[0] == "quit" {
 		    break
 		}
-	            if len(command) >= 3 {
-			if command[:3] == "get" || command == "get " {
-			    fmt.Println(SToMap(PathFormat(command[4:]),*maintime).val)
-			}
-	                if command[:3] == "set" {
-			    t1 := strings.Split(command, " ")
-			    SetValToPath(PathFormat(t1[1]),strings.Join(t1[2:]," "),*maintime)
-			}
+           
+		if smand[0] == "get" {
+		    fmt.Println(SToMap(PathFormat(command[4:]),*maintime).val)
 		}
+                if smand[0] == "set" {
+		    
+		    SetValToPath(PathFormat(smand[1]),strings.Join(smand[2:]," "),*maintime)
+		}
+	}
 		
 
-	} 
+	
     readline.SetAutoComplete(pc)
     //b, _ := l.Readline()
     
