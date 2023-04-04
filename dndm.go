@@ -17,8 +17,16 @@ func SToMap(s string,m mapobj) *mapobj {
     newa := strings.TrimPrefix(s,a)
     //fmt.Println(path)
     if(len(newa) > 0){
+        _,ok := m.sub[path]
+        if(!ok) {
+            return MakeMapObj("Item not found")
+        }
         return SToMap(newa, *m.sub[path])
     } else {
+	_,ok := m.sub[path]
+        if(!ok){
+            return MakeMapObj("Item not found")
+        }
         return m.sub[path]
     }
 }
@@ -69,8 +77,17 @@ func main(){
    
 	for true {
 		command, _ := l.Readline()
-		if command == "quit" {
-			break
+		if command == "quit" || command == "quit " {
+		    break
+		}
+	            if len(command) >= 3 {
+			if command[:3] == "get" || command == "get " {
+			    fmt.Println(SToMap(PathFormat(command[4:]),*maintime).val)
+			}
+	                if command[:3] == "set" {
+			    t1 := strings.Split(command, " ")
+			    SetValToPath(PathFormat(t1[1]),strings.Join(t1[2:]," "),*maintime)
+			}
 		}
 		
 
